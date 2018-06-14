@@ -1,36 +1,45 @@
-# Docker compose file for lvlie docker images. We use the automatically built docker images from the hub, so we dont specify the build key. 
-# The source however is in the same git repository. 
+# Docker compose file for lvlie docker images. We use the automatically built docker images from the hub, so we dont specify the build key.
+# The source however is in the same git repository.
 
-version: '2' 
+version: '2'
 
 services:
   sabnzbd:
     container_name: sabnzbd
-    build: ./sabnzbd
-    image: docker.io/lvlie/sabnzbd
+    hostname: sabnzbd
+    image: docker.io/linuxserver/sabnzbd:latest
     ports:
-      - "8088:8080"
+     - "8088:8080"
     volumes:
-      - /mnt/synology_nfs/_prog/sabnzbd/:/config/sabnzbd/
-      - /mnt/synology_nfs/_cache/:/cache/
-      - /mnt/synology_nfs/:/data/
+     - /mnt/synology_nfs/_prog/sabnzbd/:/config/
+     - /mnt/synology_nfs/_cache/:/cache/
+     - /mnt/synology_nfs/:/data/
     restart: always
+    environment:
+      - TZ=Europe/Amsterdam
+      - PUID=1026
+      - PGID=1026
   sickrage:
     container_name: sickrage
-    build: ./sickrage
-    image: docker.io/lvlie/sickrage
+    hostname: sickrage
+    image: docker.io/linuxserver/sickrage:latest
     ports:
       - "8089:8081"
     volumes:
-      - /mnt/synology_nfs/:/config/sickrage/
-      - /mnt/synology_nfs/_tv:/data/TV/
-      - /mnt/synology_nfs/_cache/:/cache/
+      - /etc/localtime:/etc/localtime:ro
+      - /mnt/synology_nfs/:/config/
+      - /mnt/synology_nfs/_tv:/tv/
+      - /mnt/synology_nfs/_cache/:/downloads
     restart: always
+    environment:
+      - TZ=Europe/Amsterdam
+      - PUID=1026
+      - PGID=1026
   couchpotato:
     container_name: couchpotato
     build: ./couchpotato
     image: docker.io/lvlie/couchpotato
-    ports: 
+    ports:
       - "5050:5050"
     volumes:
       - /mnt/synology_nfs/_prog/couchpotato/:/config/couchpotato/
@@ -39,13 +48,19 @@ services:
     restart: always
   plex:
     container_name: plex
-    build: ./plex
-    image: docker.io/lvlie/plex
+    hostname: plex
+    image: docker.io/linuxserver/plex:latest
     network_mode: "host"
-    volumes: 
-      - /mnt/synology_nfs/_prog/plex/:/config/plex/
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /mnt/synology_nfs/_prog/plex/:/config/
       - /mnt/synology_nfs/:/data/
     restart: always
+    environment:
+      - TZ=Europe/Amsterdam
+      - PUID=1026
+      - PGID=1026
+      - VERSION=latest
   unifi:
     container_name: unifi
     image: docker.io/linuxserver/unifi:latest
