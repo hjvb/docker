@@ -4,44 +4,27 @@
 version: '2' 
 
 services:
-  shellinabox:
-    container_name: shellinabox
-    build: ./shellinabox
-    image: docker.io/lvlie/shellinabox
-    ports:
-      - "4200:4200"
-    restart: always
-  proxy:
-    container_name: proxy
-    build: ./proxy
-    image: docker.io/lvlie/proxy
-    ports:
-      - "443:443"
-    volumes:
-      - /config/httpd/:/config/httpd/:ro
-      - /etc/letsencrypt/:/config/ssl/:ro
-    restart: always
   sabnzbd:
     container_name: sabnzbd
     build: ./sabnzbd
     image: docker.io/lvlie/sabnzbd
     ports:
-      - "8080:8080"
+      - "8088:8080"
     volumes:
-      - /config/sabnzbd:/config/sabnzbd/
-      - /data/cache/:/cache/
-      - /data/:/data/
+      - /mnt/synology_nfs/_prog/sabnzbd/:/config/sabnzbd/
+      - /mnt/synology_nfs/_cache/:/cache/
+      - /mnt/synology_nfs/:/data/
     restart: always
   sickrage:
     container_name: sickrage
     build: ./sickrage
     image: docker.io/lvlie/sickrage
     ports:
-      - "8081:8081"
+      - "8089:8081"
     volumes:
-      - /config/sickrage/:/config/sickrage/
-      - /data/TV/:/data/TV/
-      - /data/cache/:/cache/
+      - /mnt/synology_nfs/:/config/sickrage/
+      - /mnt/synology_nfs/_tv:/data/TV/
+      - /mnt/synology_nfs/_cache/:/cache/
     restart: always
   couchpotato:
     container_name: couchpotato
@@ -50,9 +33,9 @@ services:
     ports: 
       - "5050:5050"
     volumes:
-      - /config/couchpotato/:/config/couchpotato/
-      - /data/Movies/:/data/Movies/
-      - /data/cache/:/cache/
+      - /mnt/synology_nfs/_prog/couchpotato/:/config/couchpotato/
+      - /mnt/synology_nfs/_movies/:/data/Movies/
+      - /mnt/synology_nfs/_cache/:/cache/
     restart: always
   plex:
     container_name: plex
@@ -60,31 +43,31 @@ services:
     image: docker.io/lvlie/plex
     network_mode: "host"
     volumes: 
-      - /config/plex/:/config/plex/
-      - /data/:/data/
+      - /mnt/synology_nfs/_prog/plex/:/config/plex/
+      - /mnt/synology_nfs/:/data/
     restart: always
-  timemachine:
-    container_name: timemachine
-    build: ./timemachine
-    image: docker.io/lvlie/timemachine
-    network_mode: "host"
-    volumes: 
-      - /data/backup/:/backup/
-    restart: always
-  vpn:
-    container_name: vpn
-    image: docker.io/jpetazzo/dockvpn
+  unifi:
+    container_name: unifi
+    image: docker.io/linuxserver/unifi:latest
     ports:
-      - "1194:1194/udp"
-      - "444:443/tcp"
-    cap_add:
-      - NET_ADMIN
+      - "8080:8080"
+      - "8081:8081"
+      - "8443:8443"
+      - "8843:8843"
+      - "8880:8880"
+      - "3478:3478/udp"
     volumes:
-      - /config/vpn/:/etc/openvpn/
+      - /etc/localtime:/etc/localtime:ro
+      - /mnt/synology_nfs/_prog/unifi/:/config
     restart: always
-  noip:
-    container_name: noip
-    image: docker.io/lvlie/noip
-    build: ./no-ip
+    environment:
+      - PUID=1026
+      - PGID=1026
+  hass:
+    container_name: hass
+    image: docker.io/homeassistant/home-assistant
+    network_mode: "host"
     volumes:
-      - /config/noip/:/config/noip/
+      - /etc/localtime:/etc/localtime:ro
+      - /mnt/synology_nfs/_prog/homeassistant/:/config/
+    restart: always
