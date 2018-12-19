@@ -5,18 +5,57 @@ networks:
     external: true
 
 services:
-  influx:
-    container_name: influx
-    hostname: influx
-    image: influxdb:latest
+  traefik:
+    container_name: traefik
+    hostname: traefik
+    image: traefik
+    networks:
+      - proxy
     ports:
-      - "8083:8083"
-      - "8086:8086"
-      - "8090:8090"
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /mnt/synology_nfs/_prog/traefik/traefik.toml:/traefik.toml
+      - /mnt/synology_nfs/_prog/traefik/acme.json:/acme.json
+      - /mnt/synology_nfs/_prog/traefik/rules/:/rules/
+      - /mnt/synology_nfs/_prog/traefik/.htpasswd:/.htpasswd:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: always
+    environment:
+      - TZ=Europe\Amsterdam
+    labels:
+      - traefik.enable=true
+      - traefik.port=8082
+      - traefik.frontend.rule=Host:proxy.${DOMAIN}
+      - traefik.frontend.auth.basic="${HTPW}"
+      - traefik.frontend.headers.contentTypeNosniff=true
+      - traefik.frontend.headers.forceSTSHeader=true
+      - traefik.frontend.headers.STSSeconds=15552000
+      - traefik.frontend.headers.STSIncludeSubdomains=true
+      - traefik.frontend.headers.STSPreload=true
+      - traefik.frontend.headers.isDevelopment=false
+  shellinabox:
+    container_name: shellinabox
+    hostname: shellinabox
+    build: ./shellinabox
+    image: docker.io/lvlie/shellinabox
+    networks:
+      - proxy
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /mnt/synology_nfs/_prog/influx/:/var/lib/influxdb
-    restart: unless-stopped 
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.port=4200
+      - traefik.frontend.rule=Host:siab.${DOMAIN}
+      - traefik.frontend.auth.basic="${HTPW}"
+      - traefik.frontend.headers.contentTypeNosniff=true
+      - traefik.frontend.headers.forceSTSHeader=true
+      - traefik.frontend.headers.STSSeconds=15552000
+      - traefik.frontend.headers.STSIncludeSubdomains=true
+      - traefik.frontend.headers.STSPreload=true
+      - traefik.frontend.headers.isDevelopment=false
 
   sabnzbd:
     container_name: sabnzbd
@@ -98,20 +137,6 @@ services:
     environment:
       - PUID=1026
       - PGID=1026
-  grafana:
-    container_name: grafana
-    hostname: grafana
-    image: grafana/grafana:latest
-    ports:
-      - "3000:3000"
-    user: "1026"
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /mnt/synology_nfs/_prog/grafana/:/var/lib/grafana
-    restart: unless-stopped
-    depends_on:
-      - influx
-
   hass:
     container_name: hass
     image: docker.io/homeassistant/home-assistant:latest

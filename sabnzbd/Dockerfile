@@ -22,7 +22,7 @@ RUN apt-get update
 RUN apt-get install -y sabnzbdplus unrar zip && apt-get clean
 
 # add user for media
-RUN useradd -u 800 media
+RUN useradd -u 1026 media
 
 # add the startup script
 ADD start.sh /start.sh

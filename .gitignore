@@ -1,0 +1,12 @@
+/couchpotato
+/no-ip
+/plex/
+/proxy
+/rsync-server
+/sabnzbd
+/shellinabox
+/timemachine
+docker-compose.orig
+docker-compose2.yml
+.env
+
