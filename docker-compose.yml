@@ -33,10 +33,10 @@ services:
       - TZ=Europe/Amsterdam
       - PUID=1026
       - PGID=1026
-  sickrage:
+  sickchill:
     container_name: sickrage
     hostname: sickrage
-    image: docker.io/linuxserver/sickrage:latest
+    image: docker.io/linuxserver/sickchill:latest
     ports:
       - "8089:8081"
     volumes:
@@ -65,22 +65,23 @@ services:
       - TZ=Europe/Amsterdam
       - PUID=1026
       - PGID=1026
-  sonarr:
-    container_name: sonarr
-    hostname: sonarr
-    image: docker.io/linuxserver/sonarr:latest
-    ports:
-      - "8989:8989/tcp"
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /mnt/synology_nfs/_prog/sonarr:/config/
-      - /mnt/synology_nfs/_tv:/tv
-      - /mnt/synology_nfs/_cache:/downloads/
-    restart: always
-    environment:
-      - TZ=Europe/Amsterdam
-      - PUID=1026
-      - PGID=1026
+ # db:
+ #   container_name: db
+ #   hostname: db
+ #   image: linuxserver/mariadb
+ #   ports:
+ #     - "3306:3306"
+ #   volumes:
+ #     - /mnt/synology_nfs/_prog/mariadb:/var/lib/mysql
+ #   restart: unless-stopped
+ #   environment:
+ #     - TZ=Europe/Amsterdam
+ #     - PUID=1026
+ #     - PGID=1026
+ #     - MYSQL_DATABASE = homeassistant
+ #     - MYSQL_ROOT_PASSWORD = "${MYSQL_ROOT_PASSWORD}"
+ #     - MYSQL_USER = "${MYSQL_USER}"
+ #     - MYSQL_PASSWORD = "${MYSQL_PASSWORD}"
   unifi:
     container_name: unifi
     image: docker.io/linuxserver/unifi:latest
@@ -121,26 +122,26 @@ services:
       - /mnt/synology_nfs/_prog/homeassistant/:/config/
     devices:
       - "/dev/ttyACM0:/dev/ttyACM0"
-    restart: always
-  watchtower:
-    container_name: watchtower
-    hostname: watchtower
-    image: v2tec/watchtower:latest
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --schedule "0 2 * * * *"
-    restart: always
-  duplicati:
-    container_name: duplicati
-    hostname: duplicati
-    image: docker.io/linuxserver/duplicati:latest
-    ports:
-      - "8200:8200"
-    volumes:
-      - /mnt/synology_nfs/_prog/:/backup/var/config/:ro
-      - /mnt/synology_nfs/_prog/duplicati/:/config
-    restart: always
-    environment:
-      - TZ=Europe/Amsterdam
-      - PUID=1026
-      - PGID=1026
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+#  watchtower:
+#    container_name: watchtower
+#    hostname: watchtower
+#    image: v2tec/watchtower:latest
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#    command: --schedule "0 2 * * * *"
+#    restart: always
+ # duplicati:
+ #   container_name: duplicati
+ #   hostname: duplicati
+ #   image: docker.io/linuxserver/duplicati:latest
+ #   ports:
+ #     - "8200:8200"
+ #   volumes:
+ #     - /mnt/synology_nfs/_prog/:/backup/var/config/:ro
+ #     - /mnt/synology_nfs/_prog/duplicati/:/config
+ #   restart: always
+ #   environment:
+ #     - TZ=Europe/Amsterdam
+ #     - PUID=1026
+ #     - PGID=1026
